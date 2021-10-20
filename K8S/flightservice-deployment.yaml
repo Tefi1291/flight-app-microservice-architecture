@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flights-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flightservice
+  template:
+    metadata:
+      labels:
+        app: flightservice
+    spec:
+      containers:
+      - name: flightservice
+        image: rollinodocker/flightservice:latest
+        ports:
+        - containerPort: 80
