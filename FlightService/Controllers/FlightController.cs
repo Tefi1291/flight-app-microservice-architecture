@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Database.Repositories.Interfaces;
+using FlightService.Clients.Interfaces;
 using FlightService.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace FlightService.Controllers
 {
@@ -12,13 +14,19 @@ namespace FlightService.Controllers
     [Route("api/flights")]
     public class FlightController : ControllerBase
     {
+        private readonly IApiHttpClient _apiHttpClient;
+        private readonly IConfiguration _configuration;
         private readonly IFlightRepository _flightRepository;
         private readonly IFlightBookingRepository _flightBookingRepository;
-
+    
         public FlightController(
+            IApiHttpClient apiHttpClient,
+            IConfiguration configuration,
             IFlightRepository flightRepository,
             IFlightBookingRepository flightBookingRepository)
         {
+            _apiHttpClient = apiHttpClient;
+            _configuration = configuration;
             _flightRepository = flightRepository;
             _flightBookingRepository = flightBookingRepository;
         }
@@ -55,11 +63,16 @@ namespace FlightService.Controllers
         
 
         [HttpPost]
-        [Route("booking")]
+        [Route("bookings")]
         public async Task<Guid> CreateFlightBookingAsync([FromBody] FlightBookingCreateModel flightBookingCreateModel)
         {
             //verify 
             var flightBookingId = await _flightBookingRepository.AddFlightBookingAsync(flightBookingCreateModel);
+            
+            var url = _configuration["API:FlightBookingServiceUrl"];
+
+            Console.WriteLine($"Sending to {url}...");
+            await _apiHttpClient.SendPostAsync(url, null);
             
             return flightBookingId;
         }

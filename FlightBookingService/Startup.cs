@@ -2,24 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Database.Repositories;
-using Database.Repositories.Interfaces;
-using FlightService.Clients;
-using FlightService.Clients.Interfaces;
-using FlightService.Database;
-using FlightService.Seeder;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
 
-namespace FlightService
+namespace FlightBookingService
 {
     public class Startup
     {
@@ -33,20 +25,9 @@ namespace FlightService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
             services.AddControllers();
             
-            services.AddDbContext<DatabaseContext>(opt =>
-            {
-                opt.UseInMemoryDatabase("FlightServiceDatabase");
-                
-                // var connectionString = Configuration.GetConnectionString("FlightServiceConnectionString");
-                // opt.UseSqlServer(connectionString);
-            });
-
-            services.AddScoped<IFlightRepository, FlightRepository>();
-            services.AddScoped<IFlightBookingRepository, FlightBookingRepository>();
-
-            services.AddHttpClient<IApiHttpClient, ApiHttpClient>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,19 +48,6 @@ namespace FlightService
             {
                 endpoints.MapControllers();
             });
-
-            using(var scope = app.ApplicationServices.CreateScope())
-            {
-                var databaseContext = scope.ServiceProvider.GetService<DatabaseContext>();
-                
-                Console.WriteLine("Seeding database...");
-                
-                databaseContext.Database.EnsureDeleted();
-                databaseContext.Database.EnsureCreated();
-                databaseContext.Seed();
-
-                Console.WriteLine("Seed completed...");
-            }
         }
     }
 }

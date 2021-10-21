@@ -1,33 +1,33 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: flights-deployment
+  name: flight-bookings-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: flightservice
+      app: flightbookingservice
   template:
     metadata:
       labels:
-        app: flightservice
+        app: flightbookingservice
     spec:
       containers:
-      - name: flightservice
-        image: rollinodocker/flightservice:latest
+      - name: flightbookingservice
+        image: rollinodocker/flightbookingservice:latest
         ports:
         - containerPort: 80
 ---
 apiVersion: v1
 kind: Service
 metadata: 
-  name: flight-clusterip-service
+  name: flightbooking-clusterip-service
 spec:
   type: ClusterIP
   selector:
-    app: flightservice
+    app: flightbookingservice
   ports:
-  - name: flightservice
+  - name: flightbookingservice
     protocol: TCP
     port: 80
     targetPort: 80
